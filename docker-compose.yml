@@ -1,0 +1,100 @@
+version: '3.8'
+
+# AI Chain Multi-Node Testnet
+# Start: docker-compose up -d
+# Stop:  docker-compose down
+# Logs:  docker-compose logs -f
+
+services:
+  # Bootstrap / Seed node
+  seed:
+    build: .
+    container_name: aichain-seed
+    command: ["--node-type=seed", "--data-dir=/data"]
+    ports:
+      - "30303:30303"
+      - "8545:8545"
+    volumes:
+      - seed-data:/data
+    environment:
+      - AICHAIN_CHAIN_ID=31337
+      - AICHAIN_MINER_TYPE=np
+    networks:
+      aichain:
+        ipv4_address: 10.5.0.2
+
+  # Validator node 1
+  validator1:
+    build: .
+    container_name: aichain-validator1
+    command: ["--node-type=validator", "--bootstrap=/ip4/10.5.0.2/tcp/30303/p2p/seed", "--data-dir=/data"]
+    ports:
+      - "30304:30303"
+      - "8546:8545"
+    volumes:
+      - val1-data:/data
+    depends_on:
+      - seed
+    environment:
+      - AICHAIN_CHAIN_ID=31337
+      - AICHAIN_MINER_TYPE=np
+    networks:
+      aichain:
+        ipv4_address: 10.5.0.3
+
+  # Compute miner 1
+  cp-miner1:
+    build:
+      context: .
+      dockerfile: Dockerfile.cp-miner
+    container_name: aichain-cp-miner1
+    command: ["--node-type=cp-miner", "--bootstrap=/ip4/10.5.0.2/tcp/30303/p2p/seed", "--data-dir=/data"]
+    ports:
+      - "30305:30303"
+    volumes:
+      - cp1-data:/data
+      - ./models:/models:ro
+    depends_on:
+      - seed
+    environment:
+      - AICHAIN_CHAIN_ID=31337
+      - AICHAIN_MINER_TYPE=cp
+      - LMSTUDIO_URL=http://host.docker.internal:1234
+    networks:
+      aichain:
+        ipv4_address: 10.5.0.4
+
+  # Compute miner 2
+  cp-miner2:
+    build:
+      context: .
+      dockerfile: Dockerfile.cp-miner
+    container_name: aichain-cp-miner2
+    command: ["--node-type=cp-miner", "--bootstrap=/ip4/10.5.0.2/tcp/30303/p2p/seed", "--data-dir=/data"]
+    ports:
+      - "30306:30303"
+    volumes:
+      - cp2-data:/data
+      - ./models:/models:ro
+    depends_on:
+      - seed
+    environment:
+      - AICHAIN_CHAIN_ID=31337
+      - AICHAIN_MINER_TYPE=cp
+      - LMSTUDIO_URL=http://host.docker.internal:1234
+    networks:
+      aichain:
+        ipv4_address: 10.5.0.5
+
+volumes:
+  seed-data:
+  val1-data:
+  cp1-data:
+  cp2-data:
+
+networks:
+  aichain:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.5.0.0/16

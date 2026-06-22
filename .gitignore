@@ -1,0 +1,30 @@
+# Binaries
+aichain
+aichain-node
+aichain-web
+compute-test
+/tmp/
+
+# Test data
+testdata/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+*.token
+
+# Build artifacts
+*.exe
+*.test
+*.out
+vendor/
