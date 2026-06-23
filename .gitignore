@@ -1,8 +1,8 @@
-# Binaries
-aichain
-aichain-node
-aichain-web
-compute-test
+# Binaries (root only — compiled outputs)
+/aichain
+/aichain-node
+/aichain-web
+/compute-test
 /tmp/
 
 # Test data
