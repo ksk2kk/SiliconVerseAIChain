@@ -23,6 +23,11 @@ Thumbs.db
 .env.local
 *.token
 
+# Logs
+*.log
+logs/
+log/
+
 # Build artifacts
 *.exe
 *.test
